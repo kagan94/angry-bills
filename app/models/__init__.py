@@ -4,6 +4,5 @@ module (as opposed to just their python files)
 """
 
 from .user import *
-from .project import *
-from .project_type import *
-from .project_payment import *
+from .expense import *
+from .expsense_type import *
