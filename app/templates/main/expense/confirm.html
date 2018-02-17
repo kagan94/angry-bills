@@ -4,15 +4,37 @@
 {% block content %}
   <div class="ui text container">
     <h1>Send expense to employer</h1>
-    <form action="/payment/commit">
+    <script type="text/javascript">
+      function validateForm() {
+      var a = document.forms["Form"]["expenseType"].value;
+        if (a==null || a=="")
+        {
+            alert("Please choose the expense type");
+            return false;
+        }
+    }
+    </script>
+    <form method="POST" name="Form" onsubmit="return validateForm()" action="/expense/confirm">
       {# TODO: Show transaction information. User can send the transaction to the employer  #}
       {# TODO: Add field for transaction class #}
+      {{ form.hidden_tag() }}
         <label>Payment ID</label>
+        <input readonly name="paymentID" type="number" value="200104014010"/>
+        <label>Reciever</label>
+        <input readonly name="reciever" type="text" value="SEB Eesti AS"/>
         <label>Amount</label>
+        <input readonly name="amount" type="text" value="13€"/>
+        <label>Date</label>
+        <input readonly name="paymentDate" type="date" value="2018-04-20"/>
+        <label>Expense type</label>
         <input type="radio" name="expenseType" value="Food" />
         <input type="radio" name="expenseType" value="Transport" />
         <input type="radio" name="expenseType" value="Guest" />
         <input type="radio" name="expenseType" value="Other" />
+        <label>Description</label>
+        <input type="text" name="description" />
+        <button type="submit">Submit answer</button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
   </div>
 

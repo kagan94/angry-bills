@@ -1,7 +1,9 @@
 from flask import render_template
+from flask import request
 # from ..models import EditableHTML
 from flask import request
 
+from .forms import ConfirmForm
 from seb_api import SebApi
 from . import main
 
@@ -29,10 +31,17 @@ def add_expense():
 
 
 
-@main.route('/expense/confirm')
+@main.route('/expense/confirm', methods=['GET','POST'])
 def confirm_expense():
+    form = ConfirmForm()
     # TODO: Handle adding expense to the database
-    
+    if request.method == 'POST':
+        paymentId = request.form["paymentID"]
+        reciever = request.form["reciever"]
+        amount = request.form["amount"]
+        date = request.form["paymentDate"]
+        expenseType = request.form["expenseType"]
+        description = request.form["description"]
 
 
     return render_template('main/expense/confirm.html', **locals())
