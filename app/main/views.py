@@ -6,14 +6,14 @@ from flask import request
 from flask import request
 import datetime
 
-from flask.ext.login import login_required
+from flask_login import login_required
 
 from app.utils import save_user_file
-from .forms import ConfirmForm, AddExpenseForm
+from .forms import AddExpenseForm
 from seb_api import SebApi
 from . import main
 from .. import db
-from ..models import Expense
+from ..models import Expense, ExpenseType
 
 
 @main.route('/')
@@ -32,9 +32,9 @@ def about():
 @main.route('/expense/add', methods=['GET', 'POST'])
 def add_expense():
     form = AddExpenseForm()
+
     if request.method == 'POST':
         expense, is_form_valid = Expense(), True
-
         f = request.files['photo']
         if f.filename:
             filename = save_user_file(f)
@@ -42,7 +42,31 @@ def add_expense():
         else:
             is_form_valid = False
 
+        # paymentId = request.form["paymentID"]
+        # reciever = request.form["reciever"]
+        # recievedAmount = request.form["amount"]
+        # paymentDate = datetime.date(*map(int, request.form["paymentDate"].split('-')))
+        paymentDescription = request.form['comments']
+
+        seb_payment_date
+        seb_entToEndId
+        seb_transactionAmount
+        seb_transactionCurrency
+        seb_counterPartyAccount
+        seb_unstructuredReference
+        seb_structuredReference
+        seb_counterPartyName
+
+
         if is_form_valid:
+            # expense.expense_type_id = ExpenseType.findByTag(request.form["expense_type"])
+            # new_expense = Expense(id=paymentId,
+            #                       creditor=reciever,
+            #                       amount=recievedAmount,
+            #                       date=paymentDate,
+            #                       expense_type_id=expenseType,
+            #                       expense_description=paymentDescription)
+
             db.session.add(expense)
             db.session.commit()
 
@@ -55,21 +79,8 @@ def add_expense():
 
 @main.route('/expense/confirm', methods=['GET', 'POST'])
 def confirm_expense():
-    form = ConfirmForm()
+    form = None
+    # form = ConfirmForm()
     if request.method == 'POST':
-        paymentId = request.form["paymentID"]
-        reciever = request.form["reciever"]
-        recievedAmount = request.form["amount"]
-        paymentDate = datetime.date(*map(int, request.form["paymentDate"].split('-')))
-        expenseType = request.form["expenseType"]
-        paymentDescription = request.form["description"]
-
-        new_expense = Expense(id=paymentId,
-                              creditor=reciever,
-                              amount=recievedAmount,
-                              date=paymentDate,
-                              expense_type_id=expenseType,
-                              expense_description=paymentDescription)
-        db.session.add(new_expense)
-        db.session.commit()
+        pass
     return render_template('main/expense/confirm.html', **locals())

@@ -4,54 +4,130 @@
 {% block content %}
   <div class="ui text container">
     <h1>Add payment</h1>
-    <form action="/expense/add" method="post" enctype="multipart/form-data">
-        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 
-        <table id="transactions" border="1" width="100%">
-            <tr>
-                <th>&nbsp;</th>
-                <th>Amount</th>
-                <th>Currency</th>
-                <th>Date</th>
-                <th>Party name</th>
-                <th>Comment</th>
-            </tr>
-            {% for transaction in transactions %}
-                <tr data-endToEndId="{{ transaction }}">
-                    <td>{{loop.index0 + 1}}</td>
-                    <td>{{transaction["transactionAmount"]}}</td>
-                    <td>{{transaction["transactionCurrency"]}}</td>
-                    <td>{{transaction["bookdate"]}}</td>
-                    <td>{{transaction["counterPartyName"]}}</td>
-                    <td>{{transaction["unstructuredReference"]}}</td>
-                </tr>
-            {% endfor %}
-        </table>
-        <input type="hidden" name="endToEndId">
+    <form action="{{ url_for('main.add_expense') }}" method="post" enctype="multipart/form-data" class="ui form">
+      <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 
-      {# TODO: Add field for transaction class #}
-    <input type="file" name="photo"/>
-      <br>
+      <h2>Step #1. Select a transaction</h2>
+      <table id="transactions" class="ui celled table" width="100%">
+        <thead>
+        <tr class="center aligned">
+          <th></th>
+          <th>Amount</th>
+          <th>Currency</th>
+          <th>Date</th>
+          <th>Party name</th>
+          <th>Comment</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in transactions %}
+          <tr data-bookdate="{{ transaction["bookdate"] }}"
+              data-endtoendid="{{ transaction["entToEndId"] }}"
+              data-transaction-amount="{{ transaction["transactionAmount"] }}"
+              data-transaction-currency="{{ transaction["transactionCurrency"] }}"
+              data-counter-party-account="{{ transaction["counterPartyAccount"] }}"
+              data-unstructured-reference="{{ transaction["unstructuredReference"] }}"
+              data-structured-reference="{{ transaction["structuredReference"] }}"
+              data-counter-party-name="{{ transaction["counterPartyName"] }}"
+          >
+            <td class="center aligned">{{ loop.index0 + 1 }}</td>
+            <td class="center aligned">{{ transaction["transactionAmount"] }}</td>
+            <td class="center aligned">{{ transaction["transactionCurrency"] }}</td>
+            <td class="center aligned">{{ transaction["bookdate"] }}</td>
+            <td>{{ transaction["counterPartyName"] }}</td>
+            <td>{{ transaction["unstructuredReference"] }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
 
-        <button type="button">Request Refund!</button>
+      <h2>Step #2. Label your expense</h2>
+      <div class="inline fields">
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input type="radio" name="expense_type" value="transport" checked="checked" id="transport">
+            <label for="transport">Transport</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input type="radio" name="expense_type" value="meal" id="meal">
+            <label for="meal">Meals</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input type="radio" name="expense_type" value="accommodation" id="accommodation">
+            <label for="accommodation">Accommodation</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input type="radio" name="expense_type" value="corporate" id="corporate">
+            <label for="corporate">Corporate</label>
+          </div>
+        </div>
+      </div>
+
+      <h2>Step #3. Upload photo of receipt</h2>
+      <div class="ui middle aligned grid container" style="margin-top: 0">
+        <div class="ui fluid segment">
+          <input type="file" name="photo" id="upload-photo" class="inputfile" style="display: none;"/>
+
+          <label class="ui big teal right floated button">
+            <i class="ui upload icon"></i>Take picture
+          </label>
+          <label for="upload-photo" class="ui big teal right floated button">
+            <i class="ui upload icon"></i> Upload photo
+          </label>
+        </div>
+      </div>
+
+      <h2>Step #4. Additional information</h2>
+      <div class="field">
+        {# <label for="additional-information">Additional information</label>#}
+        <textarea rows="2" id="comments" placeholder="Write some additional comments here..."></textarea>
+      </div>
+
+      <input type="hidden" name="seb_payment_date"/>
+      <input type="hidden" name="seb_endToEndId"/>
+      <input type="hidden" name="seb_transactionAmount"/>
+      <input type="hidden" name="seb_transactionCurrency"/>
+      <input type="hidden" name="seb_counterPartyAccount"/>
+      <input type="hidden" name="seb_unstructuredReference"/>
+      <input type="hidden" name="seb_structuredReference"/>
+      <input type="hidden" name="seb_counterPartyName"/>
+
+      <button type="submit" class="ui green button huge">Request Refund!</button>
     </form>
-
+    <br><br>
   </div>
 
+  <script>
+      $('#transactions tbody tr').on('click', function (e) {
+          var tr = $(this),
+              bookdate = tr.data('bookdate'),
+              endToEndId = tr.data('endtoendid'),
+              transactionAmount = tr.data('transaction-amount'),
+              transactionCurrency = tr.data('transaction-currency'),
+              counterPartyAccount = tr.data('counter-party-account'),
+              unstructuredReference = tr.data('unstructured-reference'),
+              structuredReference = tr.data('structured-reference'),
+              counterPartyName = tr.data('counter-party-name');
 
-<script>
+          $('#transactions tr').css("background-color", 'white').css('color', 'black');
 
-    $('#transactions tr').on('click', function(e) {
-        var tr = $(this),
-            endToEndId = tr.data('endToEndId');
+          tr.css('background-color', 'rgb(0, 181, 173)').css('color', 'white');
 
-        $('#transactions tr').css("background-color", 'white');
-        tr.css('background-color', '#DC143C')
-        // selected_index = selectedRow.closest("tr")[0].rowIndex - 1
-
-        $('input[name="endToEndId"]').val(endToEndId);
-    });
-
-</script>
-  {#  <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>#}
+          $('input[name="seb_payment_date"]').val(bookdate);
+          $('input[name="seb_entToEndId"]').val(endToEndId);
+          $('input[name="seb_transactionAmount"]').val(transactionAmount);
+          $('input[name="seb_transactionCurrency"]').val(transactionCurrency);
+          $('input[name="seb_counterPartyAccount"]').val(counterPartyAccount);
+          $('input[name="seb_unstructuredReference"]').val(unstructuredReference);
+          $('input[name="seb_structuredReference"]').val(structuredReference);
+          $('input[name="seb_counterPartyName"]').val(counterPartyName);
+      });
+  </script>
 {% endblock %}
