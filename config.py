@@ -77,15 +77,20 @@ class DevelopmentConfig(Config):
     ASSETS_DEBUG = True
 
     if os.environ.get('DATABASE') == 'postgresql':
+        POSTGRES_URL = os.environ.get('POSTGRES_URL')
+        POSTGRES_DB = os.environ.get('POSTGRES_DB')
+        POSTGRES_USER = os.environ.get('POSTGRES_USER')
+        POSTGRES_PW = os.environ.get('POSTGRES_PW')
+
         POSTGRESQL_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}' \
-            .format(url=os.environ.get('POSTGRES_URL'),
-                    db=os.environ.get('POSTGRES_DB'),
-                    user=os.environ.get('POSTGRES_USER'),
-                    pw=os.environ.get('POSTGRES_PW'))
+            .format(url=POSTGRES_URL,
+                    db=POSTGRES_DB,
+                    user=POSTGRES_USER,
+                    pw=POSTGRES_PW)
         SQLALCHEMY_DATABASE_URI = POSTGRESQL_URL
         print('POSTGRESQL is used...')
     else:
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')\
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') \
                                   or 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
     print('THIS APP IS IN DEBUG MODE. YOU SHOULD NOT SEE THIS IN PRODUCTION.')
 

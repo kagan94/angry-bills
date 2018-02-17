@@ -18,8 +18,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.password_hash is not None and \
-                user.verify_password(form.password.data):
+        if user and user.password_hash is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             flash('You are now logged in. Welcome back!', 'success')
             return redirect(request.args.get('next') or url_for('main.index'))
@@ -33,24 +32,26 @@ def register():
     """Register a new user, and send them a confirmation email."""
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            email=form.email.data,
-            password=form.password.data)
+        user = User(full_name=form.full_name.data,
+                    email=form.email.data,
+                    password=form.password.data,
+                    seb_token=form.seb_token.data,
+                    company=form.company.data)
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
-        confirm_link = url_for('account.confirm', token=token, _external=True)
-        get_queue().enqueue(
-            send_email,
-            recipient=user.email,
-            subject='Confirm Your Account',
-            template='account/email/confirm',
-            user=user,
-            confirm_link=confirm_link)
-        flash('A confirmation link has been sent to {}.'.format(user.email),
-              'warning')
+
+        login_user(user, remember=True)
+
+        # token = user.generate_confirmation_token()
+        # confirm_link = url_for('account.confirm', token=token, _external=True)
+        # get_queue().enqueue(
+        #     send_email,
+        #     recipient=user.email,
+        #     subject='Confirm Your Account',
+        #     template='account/email/confirm',
+        #     user=user,
+        #     confirm_link=confirm_link)
+        # flash('A confirmation link has been sent to {}.'.format(user.email), 'warning')
         return redirect(url_for('main.index'))
     return render_template('account/register.html', form=form)
 
@@ -206,8 +207,7 @@ def confirm(token):
     return redirect(url_for('main.index'))
 
 
-@account.route(
-    '/join-from-invite/<int:user_id>/<token>', methods=['GET', 'POST'])
+@account.route('/join-from-invite/<int:user_id>/<token>', methods=['GET', 'POST'])
 def join_from_invite(user_id, token):
     """
     Confirm new user's account with provided token and prompt them to set
@@ -258,11 +258,12 @@ def join_from_invite(user_id, token):
 @account.before_app_request
 def before_request():
     """Force user to confirm email before accessing login-required routes."""
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.endpoint[:8] != 'account.' \
-            and request.endpoint != 'static':
-        return redirect(url_for('account.unconfirmed'))
+    # if current_user.is_authenticated \
+    #         and not current_user.confirmed \
+    #         and request.endpoint[:8] != 'account.' \
+    #         and request.endpoint != 'static':
+    # return redirect(url_for('account.unconfirmed'))
+    pass
 
 
 @account.route('/unconfirmed')

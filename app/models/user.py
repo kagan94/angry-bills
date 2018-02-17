@@ -5,6 +5,7 @@ from flask_login import AnonymousUserMixin, UserMixin
 from itsdangerous import BadSignature, SignatureExpired
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import load_only
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .. import db, login_manager
@@ -23,10 +24,16 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
+    # Consts
+    USER_ID = 1
+    COMPANY_ID = 2
+    ADMIN_ID = 3
+
     @staticmethod
     def insert_roles():
         roles = {
             'User': (Permission.GENERAL, 'main', True),
+            'Company': (Permission.GENERAL, 'main', True),
             'Administrator': (
                 Permission.ADMINISTER,
                 'admin',
@@ -50,12 +57,18 @@ class Role(db.Model):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     confirmed = db.Column(db.Boolean, default=False)
-    first_name = db.Column(db.String(64), index=True)
-    last_name = db.Column(db.String(64), index=True)
+    first_name = db.Column(db.String(1))  # todo: remove later..
+    last_name = db.Column(db.String(1))  # todo: remove later..
+    full_name = db.Column(db.String(100), index=True)
     email = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     seb_token = db.Column(db.String(100), unique=True, index=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    # define relationships
+    company = db.relation('User', remote_side=[id])
+    # company = db.relationship('User', backref='employees')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -65,9 +78,6 @@ class User(UserMixin, db.Model):
                     permissions=Permission.ADMINISTER).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
-
-    def full_name(self):
-        return '%s %s' % (self.first_name, self.last_name)
 
     def can(self, permissions):
         return self.role is not None and \
@@ -159,18 +169,24 @@ class User(UserMixin, db.Model):
 
         fake = Faker()
         roles = Role.query.all()
+        companies = ['Google', 'Fortumo', 'Mooncascade', 'Ciclum', 'Facebook']
 
-        create_test_user(roles)
+        create_test_user()
 
         seed()
         for i in range(count):
+            full_name = ('%s %s' % (fake.first_name(), fake.last_name()))
+            rand_role = choice(roles)
+
+            if rand_role.id == Role.COMPANY_ID:
+                full_name = choice(companies)
+
             u = User(
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
+                full_name=full_name,
                 email=fake.email(),
                 password='password',
                 confirmed=True,
-                role=choice(roles),
+                role=rand_role,
                 **kwargs)
             db.session.add(u)
             try:
@@ -179,7 +195,13 @@ class User(UserMixin, db.Model):
                 db.session.rollback()
 
     def __repr__(self):
-        return '<User \'%s\'>' % self.full_name()
+        return self.full_name
+
+
+class UserQuery:
+    @staticmethod
+    def companies():
+        return User.query.filter_by(role_id=Role.COMPANY_ID)
 
 
 class AnonymousUser(AnonymousUserMixin):
@@ -198,9 +220,9 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-def create_test_user(roles):
-    u = User(first_name="Test", last_name="Test", email='test@test.com',
-             password='test123', confirmed=True, role=choice(roles))
+def create_test_user():
+    u = User(full_name="Test Test", email='test@test.com',
+             password='test123', confirmed=True, role_id=Role.USER_ID)
     db.session.add(u)
     try:
         db.session.commit()

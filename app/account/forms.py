@@ -1,34 +1,32 @@
 from flask import url_for
 from flask_wtf import Form
-from wtforms import ValidationError
+from wtforms import ValidationError, SelectField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.fields import (BooleanField, PasswordField, StringField,
                             SubmitField)
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import Email, EqualTo, InputRequired, Length
 
-from ..models import User
+from ..models import User, UserQuery
 
 
 class LoginForm(Form):
-    email = EmailField(
-        'Email', validators=[InputRequired(), Length(1, 64), Email()])
+    email = EmailField('Email', validators=[InputRequired(), Length(1, 64), Email()])
     password = PasswordField('Password', validators=[InputRequired()])
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log in')
 
 
 class RegistrationForm(Form):
-    first_name = StringField(
-        'First name', validators=[InputRequired(), Length(1, 64)])
-    last_name = StringField(
-        'Last name', validators=[InputRequired(), Length(1, 64)])
-    email = EmailField(
-        'Email', validators=[InputRequired(), Length(1, 64), Email()])
-    password = PasswordField(
-        'Password',
-        validators=[
-            InputRequired(), EqualTo('password2', 'Passwords must match')
-        ])
+    full_name = StringField('Full name', validators=[InputRequired(), Length(1, 100)])
+    email = EmailField('Email', validators=[InputRequired(), Length(1, 64), Email()])
+    password = PasswordField('Password', validators=[InputRequired(), EqualTo('password2', 'Passwords must match')])
+    seb_token = StringField('SEB token', validators=[InputRequired(), Length(1, 100)])
+    company = QuerySelectField('Company',
+                               query_factory=lambda: UserQuery.companies().all(),
+                               get_label='full_name',
+                               allow_blank=True,
+                               validators=[InputRequired()])
     password2 = PasswordField('Confirm password', validators=[InputRequired()])
     submit = SubmitField('Register')
 
@@ -49,15 +47,10 @@ class RequestResetPasswordForm(Form):
 
 
 class ResetPasswordForm(Form):
-    email = EmailField(
-        'Email', validators=[InputRequired(), Length(1, 64), Email()])
-    new_password = PasswordField(
-        'New password',
-        validators=[
-            InputRequired(), EqualTo('new_password2', 'Passwords must match.')
-        ])
-    new_password2 = PasswordField(
-        'Confirm new password', validators=[InputRequired()])
+    email = EmailField('Email', validators=[InputRequired(), Length(1, 64), Email()])
+    new_password = PasswordField('New password',
+                                 validators=[InputRequired(), EqualTo('new_password2', 'Passwords must match.')])
+    new_password2 = PasswordField('Confirm new password', validators=[InputRequired()])
     submit = SubmitField('Reset password')
 
     def validate_email(self, field):

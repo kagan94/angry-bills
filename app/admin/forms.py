@@ -34,7 +34,7 @@ class InviteUserForm(Form):
         validators=[InputRequired()],
         get_label='name',
         query_factory=lambda: db.session.query(Role).order_by('permissions'))
-    first_name = StringField(
+    full_name = StringField(
         'First name', validators=[InputRequired(), Length(1, 64)])
     last_name = StringField(
         'Last name', validators=[InputRequired(), Length(1, 64)])
