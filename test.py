@@ -18,3 +18,11 @@ res = conn.getresponse()
 data = res.read()
 
 print(data.decode("utf-8"))
+
+# $('#transactions tr:not(:first-child)').hover(function()
+# {
+# $(this).css('background-color', '#00BFFF');
+# }, function()
+# {
+# $(this).css("background-color", 'white')
+# });

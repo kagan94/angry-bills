@@ -29,7 +29,6 @@ def add_expense():
     # TODO: Handle adding expense to the database
     transactions = SebApi().get_payments(10)
 
-
     return render_template('main/expense/add.html', **locals())
 
 

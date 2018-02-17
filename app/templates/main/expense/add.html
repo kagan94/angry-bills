@@ -4,16 +4,49 @@
 {% block content %}
   <div class="ui text container">
     <h1>Add payment</h1>
-    <form action="/payment/add">
-      {# TODO: Show account statement where user can select particular transaction #}
-      {# TODO: Add field for transaction class #}
-
-      {% for transaction in transactions %}
-        {{ transaction }}<br>
-{#        [{'': 11, 'transactionAmount': 11, 'transactionCurrency': 'EUR', 'bookdate': '2018-02-17', 'creditOrDebit': 'debit', 'structuredReference': None, 'unstructuredReference': 'test payment', 'counterPartyAccount': 'EE581010010607110014', 'counterPartyName': 'Test user', 'counterPartyLegalId': None, 'instructionId': None, 'entToEndId': 'xxxxxxxxxxxxMxxxNxxxxxxxxxxxxxxx'}, {'accountAmount': 11, 'transaction#}
-      {% endfor %}
+    <form action="/expense/confirm" method="post">
+        {# TODO: Show account statement where user can select particular transaction #}
+        {# TODO: Add field for transaction class #}
+        <table id="transactions" border="1" width="100%">
+            <tr>
+                <th>&nbsp;</th>
+                <th>Amount</th>
+                <th>Currency</th>
+                <th>Date</th>
+                <th>Party name</th>
+                <th>Comment</th>
+            </tr>
+            {% for transaction in transactions %}
+                <tr data-endToEndId="{{ transaction }}">
+                    <td>{{loop.index0 + 1}}</td>
+                    <td>{{transaction["transactionAmount"]}}</td>
+                    <td>{{transaction["transactionCurrency"]}}</td>
+                    <td>{{transaction["bookdate"]}}</td>
+                    <td>{{transaction["counterPartyName"]}}</td>
+                    <td>{{transaction["unstructuredReference"]}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="hidden" name="endToEndId">
+        <button type="button">Refund!</button>
     </form>
+
   </div>
 
+
+<script>
+
+    $('#transactions tr').on('click', function(e) {
+        var tr = $(this),
+            endToEndId = tr.data('endToEndId');
+
+        $('#transactions tr').css("background-color", 'white');
+        tr.css('background-color', '#DC143C')
+        // selected_index = selectedRow.closest("tr")[0].rowIndex - 1
+
+        $('input[name="endToEndId"]').val(endToEndId);
+    });
+
+</script>
   {#  <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>#}
 {% endblock %}

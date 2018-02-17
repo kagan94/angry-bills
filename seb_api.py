@@ -32,5 +32,8 @@ class SebApi:
         payment_info = resp.json()["content"]
         return payment_info
 
+    def create_payment(self):
+        pass
+
 # seb = SebApi()
 # print(seb.get_payments(10))
