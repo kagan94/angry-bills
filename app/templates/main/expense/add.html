@@ -4,9 +4,9 @@
 {% block content %}
   <div class="ui text container">
     <h1>Add payment</h1>
-    <form action="/expense/confirm" method="post">
-        {# TODO: Show account statement where user can select particular transaction #}
-        {# TODO: Add field for transaction class #}
+    <form action="/expense/add" method="post" enctype="multipart/form-data">
+        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+
         <table id="transactions" border="1" width="100%">
             <tr>
                 <th>&nbsp;</th>
@@ -28,7 +28,12 @@
             {% endfor %}
         </table>
         <input type="hidden" name="endToEndId">
-        <button type="button">Refund!</button>
+
+      {# TODO: Add field for transaction class #}
+    <input type="file" name="photo"/>
+      <br>
+
+        <button type="button">Request Refund!</button>
     </form>
 
   </div>

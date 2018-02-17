@@ -12,6 +12,7 @@ from config import config
 from .assets import app_css, app_js, vendor_css, vendor_js
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+root_dir = os.path.dirname(basedir)
 
 mail = Mail()
 db = SQLAlchemy()
@@ -29,6 +30,9 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # not using sqlalchemy event system, hence disabling it
+
+    app.config['UPLOAD_FOLDER'] = os.path.join(root_dir, 'files')
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
     config[config_name].init_app(app)
 

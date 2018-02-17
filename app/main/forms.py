@@ -1,4 +1,8 @@
-from flask_wtf import Form
+from wtforms import Form, StringField
+
+
+class AddExpenseForm(Form):
+    test = StringField('Test')
 
 class ConfirmForm(Form):
     pass

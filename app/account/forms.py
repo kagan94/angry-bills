@@ -18,7 +18,7 @@ class LoginForm(Form):
 
 
 class RegistrationForm(Form):
-    full_name = StringField('Full name', validators=[InputRequired(), Length(1, 100)])
+    full_name = StringField('Full name or Company name', validators=[InputRequired(), Length(1, 100)])
     email = EmailField('Email', validators=[InputRequired(), Length(1, 64), Email()])
     password = PasswordField('Password', validators=[InputRequired(), EqualTo('password2', 'Passwords must match')])
     seb_token = StringField('SEB token', validators=[InputRequired(), Length(1, 100)])

@@ -1,15 +1,19 @@
+from flask import current_app
+from flask import flash
 from flask import render_template
 from flask import request
 # from ..models import EditableHTML
 from flask import request
 import datetime
 
-from .forms import ConfirmForm
+from flask.ext.login import login_required
+
+from app.utils import save_user_file
+from .forms import ConfirmForm, AddExpenseForm
 from seb_api import SebApi
 from . import main
 from .. import db
 from ..models import Expense
-
 
 
 @main.route('/')
@@ -24,19 +28,34 @@ def about():
     return render_template('main/about.html')
 
 
-@main.route('/expense/add')
+@login_required
+@main.route('/expense/add', methods=['GET', 'POST'])
 def add_expense():
-    # TODO: Handle adding expense to the database
-    transactions = SebApi().get_payments(10)
+    form = AddExpenseForm()
+    if request.method == 'POST':
+        expense, is_form_valid = Expense(), True
 
+        f = request.files['photo']
+        if f.filename:
+            filename = save_user_file(f)
+            expense.photo = filename
+        else:
+            is_form_valid = False
+
+        if is_form_valid:
+            db.session.add(expense)
+            db.session.commit()
+
+            flash('Your expense was successfully added', 'success')
+        else:
+            flash('Invalid file or form data', 'form-error')
+    transactions = SebApi().get_payments(10)
     return render_template('main/expense/add.html', **locals())
 
 
-
-@main.route('/expense/confirm', methods=['GET','POST'])
+@main.route('/expense/confirm', methods=['GET', 'POST'])
 def confirm_expense():
     form = ConfirmForm()
-    # TODO: Handle adding expense to the database
     if request.method == 'POST':
         paymentId = request.form["paymentID"]
         reciever = request.form["reciever"]
@@ -48,11 +67,9 @@ def confirm_expense():
         new_expense = Expense(id=paymentId,
                               creditor=reciever,
                               amount=recievedAmount,
-                              date = paymentDate,
-                              expense_type_id = expenseType,
-                              expense_description = paymentDescription)
+                              date=paymentDate,
+                              expense_type_id=expenseType,
+                              expense_description=paymentDescription)
         db.session.add(new_expense)
         db.session.commit()
-
-
     return render_template('main/expense/confirm.html', **locals())
