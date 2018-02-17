@@ -1,11 +1,14 @@
 from flask import current_app
 from flask import flash
+from flask import redirect
 from flask import render_template
 from flask import request
 # from ..models import EditableHTML
 from flask import request
 import datetime
 
+from flask import url_for
+from flask.ext.login import current_user
 from flask_login import login_required
 
 from app.utils import save_user_file
@@ -34,53 +37,43 @@ def add_expense():
     form = AddExpenseForm()
 
     if request.method == 'POST':
+        f = request.form
+        photo = request.files['photo']
         expense, is_form_valid = Expense(), True
-        f = request.files['photo']
-        if f.filename:
-            filename = save_user_file(f)
+
+        if photo.filename:
+            filename = save_user_file(photo)
             expense.photo = filename
         else:
             is_form_valid = False
 
-        # paymentId = request.form["paymentID"]
-        # reciever = request.form["reciever"]
-        # recievedAmount = request.form["amount"]
-        # paymentDate = datetime.date(*map(int, request.form["paymentDate"].split('-')))
-        paymentDescription = request.form['comments']
-
-        seb_payment_date
-        seb_entToEndId
-        seb_transactionAmount
-        seb_transactionCurrency
-        seb_counterPartyAccount
-        seb_unstructuredReference
-        seb_structuredReference
-        seb_counterPartyName
-
-
         if is_form_valid:
-            # expense.expense_type_id = ExpenseType.findByTag(request.form["expense_type"])
-            # new_expense = Expense(id=paymentId,
-            #                       creditor=reciever,
-            #                       amount=recievedAmount,
-            #                       date=paymentDate,
-            #                       expense_type_id=expenseType,
-            #                       expense_description=paymentDescription)
-
+            expense.user_id = current_user.id
+            expense.expense_type_id = ExpenseType.findByTag(f["expense_type"])
+            expense.comments = f['comments']
+            expense.seb_payment_date = f['seb_payment_date']
+            expense.seb_endToEndId = f['seb_endToEndId']
+            expense.seb_transactionAmount = f['seb_transactionAmount']
+            expense.seb_transactionCurrency = f['seb_transactionCurrency']
+            expense.seb_counterPartyAccount = f['seb_counterPartyAccount']
+            expense.seb_unstructuredReference = f['seb_unstructuredReference']
+            expense.seb_structuredReference = f['seb_structuredReference']
+            expense.seb_counterPartyName = f['seb_counterPartyName']
             db.session.add(expense)
             db.session.commit()
 
             flash('Your expense was successfully added', 'success')
+            return redirect(url_for('main.add_expense'))
         else:
             flash('Invalid file or form data', 'form-error')
     transactions = SebApi().get_payments(10)
     return render_template('main/expense/add.html', **locals())
 
 
-@main.route('/expense/confirm', methods=['GET', 'POST'])
-def confirm_expense():
+@main.route('/expenses', methods=['GET'])
+def all_expenses():
     form = None
     # form = ConfirmForm()
-    if request.method == 'POST':
-        pass
-    return render_template('main/expense/confirm.html', **locals())
+    # if request.method == 'POST':
+    #     pass
+    return render_template('main/expense/all.html', **locals())

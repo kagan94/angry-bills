@@ -105,6 +105,7 @@ ENV/
 *.launch
 .settings/
 *.sublime-workspace
+files/
 
 # DB
 *.sqlite

@@ -9,8 +9,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User
-
+from app.models import Role, User, ExpenseType, IntegrityError
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -87,6 +86,21 @@ def setup_general():
             db.session.commit()
             print('Added administrator {}'.format(user.full_name))
 
+    # ExpenseType
+    expense_types = [
+        [ExpenseType.TRANSPORT_ID, 'Transport'],
+        [ExpenseType.MEAL_ID, 'Meal'],
+        [ExpenseType.ACCOMMODATION_ID, 'Accommodation'],
+        [ExpenseType.CORPORATE_ID, 'Corporate']]
+    for record in expense_types:
+        exp_type = ExpenseType.query.filter_by(id=record[0]).first()
+        if not exp_type:
+            exp_type = ExpenseType(id=record[0], name=record[1])
+            db.session.add(exp_type)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
 
 @manager.command
 def run_worker():

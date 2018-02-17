@@ -28,6 +28,7 @@
   {% set user_items = [] %}
   {% if current_user.is_authenticated %}
     {% set user_items = ([
+        ('main.all_expenses', 'Expenses', 'eye'),
         ('main.add_expense', 'Add expense', 'plus')
     ]) %}
     {# (current_user.role.index + '.index', current_user.role.name + ' Dashboard', 'user')]#}

@@ -5,7 +5,11 @@
   <div class="ui text container">
     <h1>Add payment</h1>
 
-    <form action="{{ url_for('main.add_expense') }}" method="post" enctype="multipart/form-data" class="ui form">
+    <form action="{{ url_for('main.add_expense') }}" method="post"
+          enctype="multipart/form-data"
+          class="ui form"
+{#          onsubmit="return validateForm()"#}
+    >
       <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 
       <h2>Step #1. Select a transaction</h2>
@@ -29,8 +33,7 @@
               data-counter-party-account="{{ transaction["counterPartyAccount"] }}"
               data-unstructured-reference="{{ transaction["unstructuredReference"] }}"
               data-structured-reference="{{ transaction["structuredReference"] }}"
-              data-counter-party-name="{{ transaction["counterPartyName"] }}"
-          >
+              data-counter-party-name="{{ transaction["counterPartyName"] }}">
             <td class="center aligned">{{ loop.index0 + 1 }}</td>
             <td class="center aligned">{{ transaction["transactionAmount"] }}</td>
             <td class="center aligned">{{ transaction["transactionCurrency"] }}</td>
@@ -87,7 +90,8 @@
       <h2>Step #4. Additional information</h2>
       <div class="field">
         {# <label for="additional-information">Additional information</label>#}
-        <textarea rows="2" id="comments" placeholder="Write some additional comments here..."></textarea>
+        <textarea rows="2" name="comments" id="comments"
+                  placeholder="Write some additional comments here..."></textarea>
       </div>
 
       <input type="hidden" name="seb_payment_date"/>
@@ -105,6 +109,14 @@
   </div>
 
   <script>
+      function validateForm() {
+          var a = document.forms["Form"]["expenseType"].value;
+          if (a == null || a == "") {
+              alert("Please choose the expense type");
+              return false;
+          }
+      }
+
       $('#transactions tbody tr').on('click', function (e) {
           var tr = $(this),
               bookdate = tr.data('bookdate'),
@@ -121,7 +133,7 @@
           tr.css('background-color', 'rgb(0, 181, 173)').css('color', 'white');
 
           $('input[name="seb_payment_date"]').val(bookdate);
-          $('input[name="seb_entToEndId"]').val(endToEndId);
+          $('input[name="seb_endToEndId"]').val(endToEndId);
           $('input[name="seb_transactionAmount"]').val(transactionAmount);
           $('input[name="seb_transactionCurrency"]').val(transactionCurrency);
           $('input[name="seb_counterPartyAccount"]').val(counterPartyAccount);
