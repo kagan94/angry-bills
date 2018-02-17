@@ -27,3 +27,12 @@ def add_expense():
 
 
     return render_template('main/expense/add.html', **locals())
+
+
+@main.route('/expense/confirm')
+def confirm_expense():
+    # TODO: Handle adding expense to the database
+    
+
+
+    return render_template('main/expense/confirm.html', **locals())
