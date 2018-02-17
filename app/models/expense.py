@@ -5,13 +5,15 @@ from .. import db
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(150))
-    is_confirmed = db.Column(db.Boolean, default=True)
+    creditor = db.Column(db.String(50))
     amount = db.Column(db.DECIMAL)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    # description = db.Column(db.String(500))
+    date = db.Column(db.DATE)
+    expense_description = db.Column(db.String(500))
     # due_date = db.Column(db.DATE)
     # updated_at = db.Column(db.DateTime)
+    # title = db.Column(db.String(150))
+    # is_confirmed = db.Column(db.Boolean, default=True)
+    # created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     expense_type_id = db.Column(db.Integer, db.ForeignKey('expense_type.id'))

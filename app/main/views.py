@@ -2,10 +2,13 @@ from flask import render_template
 from flask import request
 # from ..models import EditableHTML
 from flask import request
+import datetime
 
 from .forms import ConfirmForm
 from seb_api import SebApi
 from . import main
+from .. import db
+from ..models import Expense
 
 
 
@@ -38,10 +41,19 @@ def confirm_expense():
     if request.method == 'POST':
         paymentId = request.form["paymentID"]
         reciever = request.form["reciever"]
-        amount = request.form["amount"]
-        date = request.form["paymentDate"]
+        recievedAmount = request.form["amount"]
+        paymentDate = datetime.date(*map(int, request.form["paymentDate"].split('-')))
         expenseType = request.form["expenseType"]
-        description = request.form["description"]
+        paymentDescription = request.form["description"]
+
+        new_expense = Expense(id=paymentId,
+                              creditor=reciever,
+                              amount=recievedAmount,
+                              date = paymentDate,
+                              expense_type_id = expenseType,
+                              expense_description = paymentDescription)
+        db.session.add(new_expense)
+        db.session.commit()
 
 
     return render_template('main/expense/confirm.html', **locals())
