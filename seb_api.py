@@ -54,13 +54,13 @@ class SebApi:
 
         return response.status_code == 200
 
-seb = SebApi()
-
-endToEndId = "xxxxxxxxxxxxMxxxNxxxxxxxxxxxxxxx"
-debtorAccount = "EE851010010530535012"
-amount = "11"
-currency = "EUR"
-creditorAccount = "EE581010010607110014"
-
-print(seb.get_payments())
-print(seb.create_payment(debtorAccount, creditorAccount, amount, endToEndId))
+# seb = SebApi()
+#
+# endToEndId = "xxxxxxxxxxxxMxxxNxxxxxxxxxxxxxxx"
+# debtorAccount = "EE851010010530535012"
+# amount = "11"
+# currency = "EUR"
+# creditorAccount = "EE581010010607110014"
+#
+# print(seb.get_payments())
+# print(seb.create_payment(debtorAccount, creditorAccount, amount, endToEndId))
