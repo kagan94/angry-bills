@@ -82,13 +82,27 @@ def all_expenses():
     return render_template('main/expense/all.html', **locals())
 
 
-@main.route('/requests', methods=['GET', 'POST'])
+@main.route('/requests', methods=['GET'])
 @company_required
 def all_requests():
-    expenses = Expense.query\
-        .filter_by(is_rejected=False)\
-        .filter(Expense.user.has(company_id=current_user.id))\
-        .all()
+    expenses_q = Expense.query.filter(Expense.user.has(company_id=current_user.id))
+
+    refund_status = request.args.get('refund_status')
+    if refund_status == 'paid':
+        expenses_q = expenses_q.filter_by(is_approved=True, is_paid=True)
+    elif refund_status == 'approved':
+        expenses_q = expenses_q.filter_by(is_approved=True)
+    elif refund_status == 'rejected':
+        expenses_q = expenses_q.filter_by(is_rejected=True)
+    else:
+        expenses_q = expenses_q.filter_by(is_approved=False, is_rejected=False)
+
+    employees_ids_str, employees_ids = request.args.get('employees_ids'), {}
+    if employees_ids_str:
+        employees_ids = {int(employee_id): int(employee_id) for employee_id in employees_ids_str.split(',')}
+        expenses_q = expenses_q.filter(Expense.user_id.in_(employees_ids.keys()))
+
+    expenses = expenses_q.all()
     employees = User.query.filter_by(company_id=current_user.id, role_id=Role.USER_ID).all()
 
     return render_template('main/request/all.html', **locals())

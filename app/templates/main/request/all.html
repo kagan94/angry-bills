@@ -6,14 +6,20 @@
     <h1>All requests</h1>
 
     <h4 class="ui top attached block header">Filters</h4>
-    <div class="ui bottom attached segment">
-      <div class="ui form">
+    <form action="{{ url_for('main.all_requests') }}" method="GET" class="ui form" onsubmit="onFilter()">
+      <div class="ui bottom attached segment">
         <div class="fields">
           <div class="field">
             <label for="refund-status">Refund status</label>
-            <select id="refund-status" class="ui dropdown">
-              <option value="0">Waiting for approval</option>
-              <option value="1">Paid</option>
+            <select name="refund_status" id="refund-status" class="ui dropdown">
+              <option value="">Waiting for approval</option>
+              <option
+                  value="waiting_for_approval" {{ 'selected' if refund_status == 'waiting_for_approval' or not refund_status }}>
+                Waiting for approval
+              </option>
+              <option value="paid" {{ 'selected' if refund_status == 'paid' }}>Paid</option>
+              <option value="approved" {{ 'selected' if refund_status == 'approved' }}>Approved</option>
+              <option value="rejected" {{ 'selected' if refund_status == 'rejected' }}>Rejected</option>
             </select>
           </div>
 
@@ -21,23 +27,28 @@
             <label for="employees">Choose Employees</label>
             <select id="employees" class="ui fluid search dropdown" multiple="">
               {% for employee in employees %}
-                <option value="{{ employee.id }}">{{ employee.full_name }}</option>
+                <option value="{{ employee.id }}" {{ 'selected' if employees_ids[employee.id] else '' }}>
+                  {{ employee.full_name }}
+                </option>
               {% endfor %}
             </select>
+            <input type="hidden" name="employees_ids" value="">
           </div>
           {#          <div class="field">#}
           {#            <label>Middle name</label>#}
           {#            <input type="text" placeholder="Middle Name">#}
           {#          </div>#}
         </div>
+
+        <div class="ui hidden divider"></div>
+        <button type="submit" class="ui blue button">Search</button>
+        <button type="button" id="make-refund" class="ui green button">Make refund for selected items</button>
+
+        <a type="button" class="ui button right floated" href="{{ url_for('main.all_requests') }}">Reset filters</a>
       </div>
+    </form>
 
-      <div class="ui hidden divider"></div>
-      <button type="button" class="ui blue button">Search</button>
-      <button type="submit" id="make-refund" class="ui green button">Make refund for selected items</button>
-    </div>
-
-    <form action="{{ url_for('main.all_requests') }}"></form>
+    {# <form action="{{ url_for('main.all_requests') }}"></form>#}
     <table id="requests" class="ui celled selectable table">
       <thead>
       <tr class="center aligned">
@@ -82,19 +93,25 @@
           <td>{{ expense.user.full_name }}</td>
           <td class="center aligned">
             {% if not expense.is_rejected %}
-              <form action="{{ url_for('main.reject_expense', id=expense.id) }}" method="POST" style="display: inline-block">
+              <form action="{{ url_for('main.reject_expense', id=expense.id) }}" method="POST"
+                    style="display: inline-block">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <button type="submit" class="ui button orange tiny">Reject</button>
               </form>
             {% endif %}
 
             {% if not expense.is_approved %}
-              <form action="{{ url_for('main.accept_expense', id=expense.id) }}" method="POST" style="display: inline-block">
+              <form action="{{ url_for('main.accept_expense', id=expense.id) }}" method="POST"
+                    style="display: inline-block">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <button type="submit" class="ui button green tiny">Accept</button>
               </form>
             {% endif %}
           </td>
+        </tr>
+      {% else %}
+        <tr class="">
+          <td colspan="9" class="center aligned">No records founds...</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -120,6 +137,16 @@
   </div>
 
   <script>
+      $('#employees').change(function () {
+          var employeesIds = $('#employees').val(),
+              employeesIdsStr = '';
+
+          if (employeesIds && employeesIds.length > 0) {
+              employeesIdsStr = employeesIds.join(',');
+          }
+          $('input[name="employees_ids"]').val(employeesIdsStr);
+      });
+
       function selectAll() {
           var shouldCheckAll = $('#select-all-checkboxes').is(':checked');
           $('#requests tbody td:first-child :checkbox').prop('checked', shouldCheckAll);
