@@ -135,14 +135,15 @@ def accept_expense(id):
     comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s'\
               % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference, expense.seb_counterPartyName)
 
-    SebApi().create_payment(debtorAccount=expense.seb_counterPartyAccount,
-                            amount=expense.amount,
+    r = SebApi().create_payment(debtorAccount=expense.seb_counterPartyAccount,
+                            amount=float(expense.amount),
                             creditorAccount='',
                             endToEndPoint=expense.seb_endToEndId,
                             currency=expense.seb_transactionCurrency,
                             creditor='',
                             debtor='',
                             commentUnstructured=comment)
+    print(r, "RESULT")
 
     expense.is_approved = True
     db.session.add(expense)
