@@ -76,10 +76,6 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ASSETS_DEBUG = True
 
-    #POSTGRES_URL = '127.0.0.1:5432'
-    #POSTGRES_DB = 'garage48banking'
-    #POSTGRES_USER = 'testuser'
-    #POSTGRES_PW = 'testuser'
     os.environ['DATABASE'] = 'postgresql'
 
     if os.environ.get('DATABASE') == 'postgresql':

@@ -8,7 +8,7 @@
     <form action="{{ url_for('main.add_expense') }}" method="post"
           enctype="multipart/form-data"
           class="ui form"
-{#          onsubmit="return validateForm()"#}
+        {# onsubmit="return validateForm()"#}
     >
       <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 
@@ -94,9 +94,9 @@
                   placeholder="Write some additional comments here..."></textarea>
       </div>
 
+      <input type="hidden" name="amount"/>
       <input type="hidden" name="seb_payment_date"/>
       <input type="hidden" name="seb_endToEndId"/>
-      <input type="hidden" name="seb_transactionAmount"/>
       <input type="hidden" name="seb_transactionCurrency"/>
       <input type="hidden" name="seb_counterPartyAccount"/>
       <input type="hidden" name="seb_unstructuredReference"/>
@@ -105,7 +105,6 @@
 
       <button type="submit" class="ui green button huge">Request Refund!</button>
     </form>
-    <br><br>
   </div>
 
   <script>
@@ -119,9 +118,9 @@
 
       $('#transactions tbody tr').on('click', function (e) {
           var tr = $(this),
+
               bookdate = tr.data('bookdate'),
               endToEndId = tr.data('endtoendid'),
-              transactionAmount = tr.data('transaction-amount'),
               transactionCurrency = tr.data('transaction-currency'),
               counterPartyAccount = tr.data('counter-party-account'),
               unstructuredReference = tr.data('unstructured-reference'),
@@ -132,9 +131,9 @@
 
           tr.css('background-color', 'rgb(0, 181, 173)').css('color', 'white');
 
+          $('input[name="amount"]').val(amount);
           $('input[name="seb_payment_date"]').val(bookdate);
           $('input[name="seb_endToEndId"]').val(endToEndId);
-          $('input[name="seb_transactionAmount"]').val(transactionAmount);
           $('input[name="seb_transactionCurrency"]').val(transactionCurrency);
           $('input[name="seb_counterPartyAccount"]').val(counterPartyAccount);
           $('input[name="seb_unstructuredReference"]').val(unstructuredReference);

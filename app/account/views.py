@@ -6,7 +6,7 @@ from flask_rq import get_queue
 from . import account
 from .. import db
 from ..email import send_email
-from ..models import User
+from ..models import User, Role
 from .forms import (ChangeEmailForm, ChangePasswordForm, CreatePasswordForm,
                     LoginForm, RegistrationForm, RequestResetPasswordForm,
                     ResetPasswordForm)
@@ -32,11 +32,16 @@ def register():
     """Register a new user, and send them a confirmation email."""
     form = RegistrationForm()
     if form.validate_on_submit():
+        role_id = Role.USER_ID
+        if form.is_company.data:
+            role_id = Role.COMPANY_ID
+
         user = User(full_name=form.full_name.data,
                     email=form.email.data,
                     password=form.password.data,
                     seb_token=form.seb_token.data,
-                    company=form.company.data)
+                    company=form.company.data,
+                    role_id=role_id)
         db.session.add(user)
         db.session.commit()
 

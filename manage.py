@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 import os
+import random
 import subprocess
+
+import copy
+
 from config import Config
 
 from flask_migrate import Migrate, MigrateCommand
@@ -9,7 +13,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User, ExpenseType, IntegrityError
+from app.models import Role, User, ExpenseType, IntegrityError, Expense, choice
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -51,7 +55,7 @@ def recreate_db():
     type=int,
     help='Number of each model type to create',
     dest='number_users')
-def add_fake_data(number_users):
+def add_fake_users(number_users):
     """
     Adds fake data to the database.
     """
@@ -61,6 +65,7 @@ def add_fake_data(number_users):
 @manager.command
 def setup_dev():
     """Runs the set-up needed for local development."""
+    recreate_db()
     setup_general()
 
 
@@ -74,6 +79,8 @@ def setup_general():
     """Runs the set-up needed for both local development and production.
        Also sets up first admin user."""
     Role.insert_roles()
+    print('Added Roles')
+
     admin_query = Role.query.filter_by(name='Administrator')
     if admin_query.first() is not None:
         if User.query.filter_by(email=Config.ADMIN_EMAIL).first() is None:
@@ -84,7 +91,20 @@ def setup_general():
                 email=Config.ADMIN_EMAIL)
             db.session.add(user)
             db.session.commit()
-            print('Added administrator {}'.format(user.full_name))
+
+    add_fake_users(number_users=10)
+
+    # Add test Company
+    company_user = User(full_name="Company Test", email='company@test.com', password='test123', role_id=Role.COMPANY_ID)
+    db.session.add(company_user)
+    db.session.commit()
+
+    # Add test User
+    test_user = User(full_name="Test User", email='test@test.com', password='test123', role_id=Role.USER_ID, company_id=company_user.id)
+    db.session.add(test_user)
+    db.session.commit()
+
+    print('Added Users')
 
     # ExpenseType
     expense_types = [
@@ -101,6 +121,27 @@ def setup_general():
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
+    print('Added ExpenseTypes')
+
+    # Add test Expenses to test user
+    expense_types = ExpenseType.query.all()
+    for i in range(1, 11):
+        is_approved = bool(random.getrandbits(1))
+        is_paid = bool(random.getrandbits(1)) if is_approved else False
+        dummy_expense = Expense(id=i, comments='Dummy test instance', amount=(150 * i**2), is_approved=is_approved, is_paid=is_paid,
+                                seb_payment_date='2018-02-18',
+                                seb_endToEndId='random__str',
+                                seb_transactionCurrency='EUR',
+                                seb_counterPartyAccount='xxxxxxxxx',
+                                seb_structuredReference='xxxxxxxxx',
+                                seb_unstructuredReference='xxxxxxxxx',
+                                seb_counterPartyName='xxxxxxxxx',
+                                user_id=test_user.id,
+                                expense_type=choice(expense_types))
+        db.session.add(dummy_expense)
+    db.session.commit()
+    print('Added Expenses')
+
 
 @manager.command
 def run_worker():

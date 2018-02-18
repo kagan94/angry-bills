@@ -64,7 +64,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     seb_token = db.Column(db.String(100), unique=True, index=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    company_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
     # define relationships
     company = db.relation('User', remote_side=[id])
@@ -72,12 +72,11 @@ class User(UserMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.role is None:
+        if self.role_id is None:
             if self.email == current_app.config['ADMIN_EMAIL']:
-                self.role = Role.query.filter_by(
-                    permissions=Permission.ADMINISTER).first()
-            if self.role is None:
-                self.role = Role.query.filter_by(default=True).first()
+                self.role = Role.query.filter_by(permissions=Permission.ADMINISTER).first()
+            if self.role_id is None:
+                self.role_id = Role.USER_ID
 
     def can(self, permissions):
         return self.role is not None and \
@@ -177,8 +176,6 @@ class User(UserMixin, db.Model):
         roles = Role.query.all()
         companies = ['Google', 'Fortumo', 'Mooncascade', 'Ciclum', 'Facebook']
 
-        create_test_user()
-
         seed()
         for i in range(count):
             full_name = ('%s %s' % (fake.first_name(), fake.last_name()))
@@ -225,12 +222,3 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
-def create_test_user():
-    u = User(full_name="Test Test", email='test@test.com',
-             password='test123', confirmed=True, role_id=Role.USER_ID)
-    db.session.add(u)
-    try:
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()

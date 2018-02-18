@@ -1,0 +1,145 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/page_macros.html' as page %}
+
+{% block content %}
+  <div class="ui text container">
+    <h1>All requests</h1>
+
+    <h4 class="ui top attached block header">Filters</h4>
+    <div class="ui bottom attached segment">
+      <div class="ui form">
+        <div class="fields">
+          <div class="field">
+            <label for="refund-status">Refund status</label>
+            <select id="refund-status" class="ui dropdown">
+              <option value="0">Waiting for approval</option>
+              <option value="1">Paid</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="employees">Choose Employees</label>
+            <select id="employees" class="ui fluid search dropdown" multiple="">
+              {% for employee in employees %}
+                <option value="{{ employee.id }}">{{ employee.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {#          <div class="field">#}
+          {#            <label>Middle name</label>#}
+          {#            <input type="text" placeholder="Middle Name">#}
+          {#          </div>#}
+        </div>
+      </div>
+
+      <div class="ui hidden divider"></div>
+      <button type="button" class="ui blue button">Search</button>
+      <button type="submit" id="make-refund" class="ui green button">Make refund for selected items</button>
+    </div>
+
+    <form action="{{ url_for('main.all_requests') }}"></form>
+    <table id="requests" class="ui celled selectable table">
+      <thead>
+      <tr class="center aligned">
+        <th width="10">
+          <div class="ui fitted checkbox"
+               onclick="selectAll()"
+               data-tooltip="Select All" data-position="top left">
+            <input type="checkbox" name="select_all" value="" class="hidden" id="select-all-checkboxes">
+            <label for="select-all-checkboxes"></label>
+          </div>
+        </th>
+        <th width="10">ID</th>
+        <th>Payment Date</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Is Approved</th>
+        <th>Is Paid</th>
+        <th>Created By</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for expense in expenses %}
+        <tr>
+          <td width="10" class="compact segment center aligned">
+            <div class="ui fitted checkbox" onclick="$(this).closest('tr').click()">
+              <input type="checkbox" name="expenses" value="{{ expense.id }}" class="hidden"
+                     id="checkbox-{{ expense.id }}">
+              <label for="checkbox-{{ expense.id }}"></label>
+            </div>
+          </td>
+          <td class="center aligned">{{ expense.id }}</td>
+          <td class="center aligned">{{ expense.seb_payment_date }}</td>
+          <td class="center aligned">{{ expense.amount }} {{ expense.seb_transactionCurrency }}</td>
+          <td>{{ expense.expense_type.name }}</td>
+          <td class="center aligned">
+            {{ ('<i class="star green icon"></i>' if expense.is_approved else '<i class="star half empty red icon"></i>') | safe }}
+          </td>
+          <td class="center aligned">
+            {{ ('<i class="star green icon"></i>' if expense.is_paid else '<i class="star half empty red icon"></i>') | safe }}
+          </td>
+          <td>{{ expense.user.full_name }}</td>
+          <td class="center aligned">
+            {% if not expense.is_rejected %}
+              <form action="{{ url_for('main.reject_expense', id=expense.id) }}" method="POST" style="display: inline-block">
+                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+                <button type="submit" class="ui button orange tiny">Reject</button>
+              </form>
+            {% endif %}
+
+            {% if not expense.is_approved %}
+              <form action="{{ url_for('main.accept_expense', id=expense.id) }}" method="POST" style="display: inline-block">
+                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+                <button type="submit" class="ui button green tiny">Accept</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+      <tr>
+        <th colspan="9">
+          <div class="ui right floated pagination menu">
+            <a class="icon item">
+              <i class="left chevron icon"></i>
+            </a>
+            <a class="item">1</a>
+            <a class="item">2</a>
+            <a class="item">3</a>
+            <a class="item">4</a>
+            <a class="icon item">
+              <i class="right chevron icon"></i>
+            </a>
+          </div>
+        </th>
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script>
+      function selectAll() {
+          var shouldCheckAll = $('#select-all-checkboxes').is(':checked');
+          $('#requests tbody td:first-child :checkbox').prop('checked', shouldCheckAll);
+      }
+
+      $('#requests tbody tr').on('click', function (e) {
+          var tr = $(this),
+              checkbox = tr.find('input[name="expenses"]');
+          checkbox.click();
+      });
+
+      $('#make-refund').on('click', function () {
+          var selectedRequests = $('#requests tbody td:first-child :checkbox').map(function (i, el) {
+              if ($(el).is(':checked')) {
+                  return $(el).val();
+              }
+          }).get();
+
+          // Paste selected requests IDs into hidden input
+          $('#selected-requests').val(selectedRequests);
+      });
+  </script>
+{% endblock %}

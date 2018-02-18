@@ -21,13 +21,34 @@
 {% endmacro %}
 
 {% macro user_info(user) %}
-    <table class="ui compact definition table">
-        <tr><td>Full name or Company name</td><td>{{ user.full_name }}</td></tr>
-        <tr><td>Email address</td><td>{{ user.email }}</td></tr>
-        <tr><td>Account type</td><td>{{ user.role.name }}</td></tr>
-        <tr><td>SEB token</td><td>{{ user.seb_token }}</td></tr>
-        <tr><td>Company</td><td>{{ user.company.full_name }}</td></tr>
-    </table>
+  <table class="ui compact definition table">
+    <tr>
+      <td>
+        {% if user.is_user() %} Full name
+        {% elif user.is_company() %}Company name
+        {% endif %}
+      </td>
+      <td>{{ user.full_name }}</td>
+    </tr>
+    <tr>
+      <td>Email address</td>
+      <td>{{ user.email }}</td>
+    </tr>
+    <tr>
+      <td>Account type</td>
+      <td>{{ user.role.name }}</td>
+    </tr>
+    <tr>
+      <td>SEB token</td>
+      <td>{{ user.seb_token }}</td>
+    </tr>
+    {% if user.is_user() %}
+      <tr>
+        <td>Company</td>
+        <td>{{ user.company.full_name }}</td>
+      </tr>
+    {% endif %}
+  </table>
 {% endmacro %}
 
 {% block content %}

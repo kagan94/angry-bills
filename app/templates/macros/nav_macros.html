@@ -27,10 +27,16 @@
 
   {% set user_items = [] %}
   {% if current_user.is_authenticated %}
-    {% set user_items = ([
+    {% if current_user.is_company() %}
+      {% set user_items = ([
+        ('main.all_requests', 'Requests', 'eye'),
+      ]) %}
+    {% elif current_user.is_user() %}
+      {% set user_items = ([
         ('main.all_expenses', 'Expenses', 'eye'),
         ('main.add_expense', 'Add expense', 'plus')
-    ]) %}
+      ]) %}
+    {% endif %}
     {# (current_user.role.index + '.index', current_user.role.name + ' Dashboard', 'user')]#}
   {% endif %}
 

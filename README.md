@@ -6,8 +6,8 @@ Description here...
 **Email:** test@test.com  
 **Password:** test123
   
-**Admin account**  
-**Email:** admin@test.com  
+**Company account**  
+**Email:** company@test.com  
 **Password:** admin123
 
 ## Screen shoots
@@ -46,21 +46,11 @@ _Mac (using homebrew):_
 brew install postgresql
 ```
 
-
 ##### Create the database, test data, setup environment 
-
-```
-python manage.py recreate_db
-python manage.py setup_dev
-python manage.py add_fake_data
-```
+```python manage.py setup_dev```
 
 ## Running the app
-
-```
-$ source env/bin/activate
-$ honcho start -f Local
-```
+```python manage.py runserver```
 
 For Windows users having issues with binding to a redis port locally, refer to [this issue](https://github.com/hack4impact/flask-base/issues/132).
 

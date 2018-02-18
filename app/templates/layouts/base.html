@@ -37,6 +37,7 @@
         {# When extended, the content block contains all the html of the webpage #}
         {% block content %}
         {% endblock %}
+        <br><br>
 
         {# Implement CSRF protection for site #}
         {% if csrf_token()|safe %}

@@ -22,11 +22,11 @@ class RegistrationForm(Form):
     email = EmailField('Email', validators=[InputRequired(), Length(1, 64), Email()])
     password = PasswordField('Password', validators=[InputRequired(), EqualTo('password2', 'Passwords must match')])
     seb_token = StringField('SEB token', validators=[InputRequired(), Length(1, 100)])
+    is_company = BooleanField('Are you a company?')
     company = QuerySelectField('Company',
                                query_factory=lambda: UserQuery.companies().all(),
                                get_label='full_name',
-                               allow_blank=True,
-                               validators=[InputRequired()])
+                               allow_blank=True)
     password2 = PasswordField('Confirm password', validators=[InputRequired()])
     submit = SubmitField('Register')
 

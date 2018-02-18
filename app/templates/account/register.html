@@ -8,11 +8,11 @@
       <h2 class="ui dividing header">Create an account</h2>
 
       {% set flashes = {
-                'error':   get_flashed_messages(category_filter=['form-error']),
-                'warning': get_flashed_messages(category_filter=['form-check-email']),
-                'info':    get_flashed_messages(category_filter=['form-info']),
-                'success': get_flashed_messages(category_filter=['form-success'])
-            } %}
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'warning': get_flashed_messages(category_filter=['form-check-email']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+      } %}
 
       {{ f.begin_form(form, flashes) }}
 
@@ -31,6 +31,8 @@
         {{ f.render_form_field(form.company) }}
       </div>
 
+      {{ f.render_form_field(form.is_company) }}
+
       {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
       {{ f.form_message(flashes['warning'], header='Check your email.', class='warning') }}
       {{ f.form_message(flashes['info'], header='Information', class='info') }}
@@ -44,4 +46,16 @@
     </div>
   </div>
   {{ check.password_check('password', 0) }}
+
+  <script>
+      $('#is_company').change(function () {
+          if ($(this).is(":checked")) {
+              $('#company').closest('.field').hide(400)
+          } else {
+              $('#company').closest('.field').show(400)
+          }
+      });
+      $('#is_company').change();
+  </script>
+
 {% endblock %}
