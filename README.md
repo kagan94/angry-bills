@@ -8,7 +8,7 @@ Description here...
   
 **Company account**  
 **Email:** company@test.com  
-**Password:** admin123
+**Password:** test123
 
 ## Screen shoots
 TBD...

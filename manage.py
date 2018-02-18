@@ -27,6 +27,10 @@ def make_shell_context():
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
+@app.before_first_request
+def create_database():
+    db.create_all()
+
 
 @manager.command
 def test():
