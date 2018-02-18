@@ -1,3 +1,4 @@
+from flask import abort
 from flask import current_app
 from flask import flash
 from flask import redirect
@@ -66,7 +67,7 @@ def add_expense():
             return redirect(url_for('main.add_expense'))
         else:
             flash('Invalid file or form data', 'form-error')
-    transactions = SebApi().get_payments(10)
+    transactions = SebApi().get_payments(size=5)
     return render_template('main/expense/add.html', **locals())
 
 
@@ -111,9 +112,9 @@ def all_requests():
 @main.route('/expense/<id>/reject', methods=['POST'])
 @company_required
 def reject_expense(id):
-    expense = Expense.query\
-        .filter_by(id=int(id), is_rejected=False)\
-        .filter(Expense.user.has(company_id=current_user.id))\
+    expense = Expense.query \
+        .filter_by(id=int(id), is_rejected=False) \
+        .filter(Expense.user.has(company_id=current_user.id)) \
         .first_or_404()
     expense.is_rejected = True
     db.session.add(expense)
@@ -126,27 +127,36 @@ def reject_expense(id):
 @main.route('/expense/<id>/accept', methods=['POST'])
 @company_required
 def accept_expense(id):
-    # TODO: Request to make refund here...
-    expense = Expense.query\
-        .filter_by(id=int(id), is_rejected=False)\
-        .filter(Expense.user.has(company_id=current_user.id))\
+    expense = Expense.query \
+        .filter_by(id=int(id), is_rejected=False) \
+        .filter(Expense.user.has(company_id=current_user.id)) \
         .first_or_404()
 
-    comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s'\
-              % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference, expense.seb_counterPartyName)
+    comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s' \
+              % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference,
+                 expense.seb_counterPartyName)
 
-    print(expense.seb_counterPartyAccount, float(expense.amount),
-          expense.seb_endToEndId, expense.seb_transactionCurrency, comment, "DOTA")
-    r = SebApi().create_payment(debtorAccount=expense.seb_counterPartyAccount,
-                            amount=float(expense.amount),
-                            creditorAccount='',
-                            endToEndPoint=expense.seb_endToEndId,
-                            currency=expense.seb_transactionCurrency,
-                            creditor='',
-                            debtor='',
-                            commentUnstructured=comment)
-    print(r, "RESULT")
+    # Request to make refund here...
+    seb_api = SebApi()
+    accounts = seb_api.get_accounts()
+    sender_iban = seb_api.find_iban(accounts, expense.amount)
+    if not sender_iban:
+        flash('Not enough money on any of SEB accounts', 'form-error')
+        return redirect(url_for('main.all_requests'))
 
+    resp = seb_api.create_payment(debtorAccount=sender_iban,
+                                  amount=expense.amount,
+                                  creditorAccount=expense.seb_counterPartyAccount,
+                                  endToEndPoint=expense.seb_endToEndId,
+                                  currency=expense.seb_transactionCurrency,
+                                  creditor='',
+                                  debtor='',
+                                  commentUnstructured=comment)
+    if not resp:
+        flash('SEB create payment transaction failed', 'form-error')
+        return redirect(url_for('main.all_requests'))
+
+    expense.is_paid = True
     expense.is_approved = True
     db.session.add(expense)
     db.session.commit()

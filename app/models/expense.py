@@ -6,7 +6,7 @@ from .. import db
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comments = db.Column(db.String(500))
-    amount = db.Column(db.DECIMAL)
+    amount = db.Column(db.FLOAT)
     is_rejected = db.Column(db.Boolean, default=False)
     is_approved = db.Column(db.Boolean, default=False)
     is_paid = db.Column(db.Boolean, default=False)

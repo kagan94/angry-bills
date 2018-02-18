@@ -101,12 +101,14 @@ def setup_general():
     add_fake_users(number_users=10)
 
     # Add test Company
-    company_user = User(full_name="Company Test", email='company@test.com', password='test123', role_id=Role.COMPANY_ID)
+    company_user = User(full_name="Company Test", email='company@test.com', password='test123', role_id=Role.COMPANY_ID,
+                        seb_token="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJERU1PRUUsaWJzVXNlcjMiLCJleHAiOjE1NTA1MDQwMjd9.PbOHbssn6LPgf34PywZCDIvYQg1I_dcJjdRTX5VxX9U58tSpvCTTF34Q21DzTxDoNemcPPlsgF8vsun_PGvcPQ")
     db.session.add(company_user)
     db.session.commit()
 
     # Add test User
-    test_user = User(full_name="Test User", email='test@test.com', password='test123', role_id=Role.USER_ID, company_id=company_user.id)
+    test_user = User(full_name="Test User", email='test@test.com', password='test123', role_id=Role.USER_ID, company_id=company_user.id,
+                     seb_token="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJERU1PRUUsaWJzVXNlcjIiLCJleHAiOjE1NTA1MDQwNTd9.OkNj0WNwQcTK8XfejJ98jw3vg-4t8e6i3cCLlr4ncs0oX5EEx0k8vSbLhwV7DMjddhrCj0t1vuL6ULOpWUDPlg")
     db.session.add(test_user)
     db.session.commit()
 
@@ -134,13 +136,13 @@ def setup_general():
     for i in range(1, 11):
         is_approved = bool(random.getrandbits(1))
         is_paid = bool(random.getrandbits(1)) if is_approved else False
-        dummy_expense = Expense(comments='Dummy test instance', amount=(150 * i**2), is_approved=is_approved, is_paid=is_paid,
+        dummy_expense = Expense(comments='Dummy test instance', amount=(15 * i*2), is_approved=is_approved, is_paid=is_paid,
                                 seb_payment_date='2018-02-18',
-                                seb_endToEndId='random__str',
+                                seb_endToEndId='xxxxxxxxxxxxMxxxNxxxxxxxxxxxxxxx',
                                 seb_transactionCurrency='EUR',
                                 seb_counterPartyAccount='xxxxxxxxx',
                                 seb_structuredReference='xxxxxxxxx',
-                                seb_unstructuredReference='xxxxxxxxx',
+                                seb_unstructuredReference='test refund',
                                 seb_counterPartyName='xxxxxxxxx',
                                 user_id=test_user.id,
                                 expense_type=choice(expense_types))
