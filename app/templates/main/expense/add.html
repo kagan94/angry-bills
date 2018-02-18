@@ -126,7 +126,7 @@
 
       $('#transactions tbody tr').on('click', function (e) {
           var tr = $(this),
-
+              amount = tr.data('transaction-amount'),
               bookdate = tr.data('bookdate'),
               endToEndId = tr.data('endtoendid'),
               transactionCurrency = tr.data('transaction-currency'),

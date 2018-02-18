@@ -132,7 +132,7 @@ def setup_general():
     for i in range(1, 11):
         is_approved = bool(random.getrandbits(1))
         is_paid = bool(random.getrandbits(1)) if is_approved else False
-        dummy_expense = Expense(id=i, comments='Dummy test instance', amount=(150 * i**2), is_approved=is_approved, is_paid=is_paid,
+        dummy_expense = Expense(comments='Dummy test instance', amount=(150 * i**2), is_approved=is_approved, is_paid=is_paid,
                                 seb_payment_date='2018-02-18',
                                 seb_endToEndId='random__str',
                                 seb_transactionCurrency='EUR',
