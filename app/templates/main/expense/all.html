@@ -3,37 +3,40 @@
 
 {% block content %}
   <div class="ui text container">
-    <h1>All expenses</h1>
-    <table class="ui celled table">
+    <h1>Submitted requests</h1>
+
+
+    <form action="{{ url_for('main.all_requests') }}"></form>
+    <table id="requests" class="ui celled selectable table">
       <thead>
-      <tr>
-        <th>Header</th>
-        <th>Header</th>
-        <th>Header</th>
+      <tr class="center aligned">
+        <th width="10">ID</th>
+        <th>Payment Date</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Approved</th>
+        <th>Paid</th>
       </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>
-          <div class="ui ribbon label">First</div>
-        </td>
-        <td>Cell</td>
-        <td>Cell</td>
-      </tr>
-      <tr>
-        <td>Cell</td>
-        <td>Cell</td>
-        <td>Cell</td>
-      </tr>
-      <tr>
-        <td>Cell</td>
-        <td>Cell</td>
-        <td>Cell</td>
-      </tr>
+      {% for expense in expenses %}
+        <tr>
+          <td class="center aligned">{{ expense.id }}</td>
+          <td class="center aligned">{{ expense.seb_payment_date }}</td>
+          <td class="center aligned">{{ expense.amount }} {{ expense.seb_transactionCurrency }}</td>
+          <td>{{ expense.expense_type.name }}</td>
+          <td class="center aligned">
+            {{ ('<i class="green star thumbs up icon"></i>' if expense.is_approved else '<i class="red thumbs down icon"></i>') | safe }}
+          </td>
+          <td class="center aligned">
+            {{ ('<i class="green star thumbs up icon"></i>' if expense.is_paid else '<i class="red thumbs down icon"></i>') | safe }}
+          </td>
+        </tr>
+      {% endfor %}
       </tbody>
       <tfoot>
       <tr>
-        <th colspan="3">
+        <th colspan="9">
           <div class="ui right floated pagination menu">
             <a class="icon item">
               <i class="left chevron icon"></i>
@@ -51,4 +54,28 @@
       </tfoot>
     </table>
   </div>
+
+  <script>
+      function selectAll() {
+          var shouldCheckAll = $('#select-all-checkboxes').is(':checked');
+          $('#requests tbody td:first-child :checkbox').prop('checked', shouldCheckAll);
+      }
+
+      $('#requests tbody tr').on('click', function (e) {
+          var tr = $(this),
+              checkbox = tr.find('input[name="expenses"]');
+          checkbox.click();
+      });
+
+      $('#make-refund').on('click', function () {
+          var selectedRequests = $('#requests tbody td:first-child :checkbox').map(function (i, el) {
+              if ($(el).is(':checked')) {
+                  return $(el).val();
+              }
+          }).get();
+
+          // Paste selected requests IDs into hidden input
+          $('#selected-requests').val(selectedRequests);
+      });
+  </script>
 {% endblock %}

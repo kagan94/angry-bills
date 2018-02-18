@@ -73,6 +73,8 @@ def add_expense():
 @main.route('/expenses', methods=['GET'])
 @user_required
 def all_expenses():
+    expenses = Expense.query.filter(Expense.user_id == current_user.id).all()
+
     form = None
     # form = ConfirmForm()
     # if request.method == 'POST':
