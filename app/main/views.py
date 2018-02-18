@@ -127,11 +127,23 @@ def reject_expense(id):
 @company_required
 def accept_expense(id):
     # TODO: Request to make refund here...
-
     expense = Expense.query\
         .filter_by(id=int(id), is_rejected=False)\
         .filter(Expense.user.has(company_id=current_user.id))\
         .first_or_404()
+
+    comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s'\
+              % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference, expense.seb_counterPartyName)
+
+    SebApi().create_payment(debtorAccount=expense.seb_counterPartyAccount,
+                            amount=expense.amount,
+                            creditorAccount='',
+                            endToEndPoint=expense.seb_endToEndId,
+                            currency=expense.seb_transactionCurrency,
+                            creditor='',
+                            debtor='',
+                            commentUnstructured=comment)
+
     expense.is_approved = True
     db.session.add(expense)
     db.session.commit()

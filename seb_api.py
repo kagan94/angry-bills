@@ -8,8 +8,9 @@ class SebApi:
 
     def __init__(self):
         ttp_token = """eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsdmY0MzJAbWFpbC5ydSIsImV4cCI6MTU1MDM5NDg0M30.PNC0Igse8izoiDhfqiHqEi3MQ_RXmsJO3rlHdlBrershU_WT1YRhVq8juaSygplQVspX59A6JduFJnW3skZmjw"""
-        user_token = """eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJERU1PRUUsaWJzVXNlcjEiLCJleHAiOjE1NTAzOTQ3MTl9.uunOsh99Zp-lcOAkN6XpJ_q4h0JJ_XVaak3I-n_z6yXbw_bND1eb4kWm0WiF96Vnkr3NeEzC7DR62W3J3WgNFg"""
+        #user_token1 = """eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJERU1PRUUsaWJzVXNlcjEiLCJleHAiOjE1NTAzOTQ3MTl9.uunOsh99Zp-lcOAkN6XpJ_q4h0JJ_XVaak3I-n_z6yXbw_bND1eb4kWm0WiF96Vnkr3NeEzC7DR62W3J3WgNFg"""
 
+        user_token = """eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJERU1PRUUsaWJzVXNlcjIiLCJleHAiOjE1NTA0OTczNTF9.lhr5FCy0d5kVEyEjjIVCuwwNf73XB6fJzcwjnBzvQ6VbgcJcGUQNLTumQ3TIIXUCE4dR4cnrUmFbvpXutWUU7A"""
         self.ttp_token = ttp_token
         self.user_token = user_token
 
@@ -32,7 +33,7 @@ class SebApi:
         payment_info = response.json()["content"]
         return payment_info
 
-    def create_payment(self, debtorAccount, creditorAccount, amount, endToEndPoint,
+    def create_payment(self, debtorAccount, amount, endToEndPoint, creditorAccount='',
                              currency="EUR",creditor = "Test  user", debtor = "Debtor 1",
                              commentStructured="test refund", commentUnstructured = "test refund"):
 
