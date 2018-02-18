@@ -49,26 +49,34 @@
       <div class="inline fields">
         <div class="field">
           <div class="ui radio checkbox">
-            <input type="radio" name="expense_type" value="transport" checked="checked" id="transport">
-            <label for="transport"><img src="../../static/label_images/transport.png" ></label>
+            <label>
+              <input type="radio" name="expense_type" value="transport" checked="checked" id="transport" onclick="changeLabels()">
+              <img src="../../static/label_images/transport_active.png" id="for_transport">
+            </label>
           </div>
         </div>
         <div class="field">
           <div class="ui radio checkbox">
-            <input type="radio" name="expense_type" value="meal" id="meal">
-            <label for="meal"><img src="../../static/label_images/meals.png" ></label>
+            <label>
+              <input type="radio" name="expense_type" value="meal" id="meal" onclick="changeLabels()">
+              <img src="../../static/label_images/meals.png" id="for_meal">
+            </label>
           </div>
         </div>
         <div class="field">
           <div class="ui radio checkbox">
-            <input type="radio" name="expense_type" value="accommodation" id="accommodation">
-            <label for="accommodation"><img src="../../static/label_images/accommodation.png" ></label>
+            <label>
+              <input type="radio" name="expense_type" value="accommodation" id="accommodation" onclick="changeLabels()">
+              <img src="../../static/label_images/accommodation.png" id="for_accommodation">
+            </label>
           </div>
         </div>
         <div class="field">
           <div class="ui radio checkbox">
-            <input type="radio" name="expense_type" value="corporate" id="corporate">
-            <label for="corporate"><img src="../../static/label_images/corporate.png" ></label>
+            <label>
+              <input type="radio" name="expense_type" value="corporate" id="corporate" onclick="changeLabels()">
+              <img src="../../static/label_images/corporate.png" id="for_corporate">
+            </label>
           </div>
         </div>
       </div>
@@ -140,5 +148,56 @@
           $('input[name="seb_structuredReference"]').val(structuredReference);
           $('input[name="seb_counterPartyName"]').val(counterPartyName);
       });
+
+      function changeLabels() {
+        var transport = document.getElementById('transport');
+        var meal = document.getElementById('meal');
+        var accommodation = document.getElementById('accommodation');
+        var corporate = document.getElementById('corporate');
+
+        if (transport.checked)
+        {
+            document.getElementById("for_transport").src = "../../static/label_images/transport_active.png";
+            $("input[name='expense_type']").val("transport");
+        }
+        else
+        {
+            document.getElementById("for_transport").src = "../../static/label_images/transport.png";
+        }
+
+        if (meal.checked)
+        {
+            document.getElementById("for_meal").src = "../../static/label_images/meals_active.png";
+            $("input[name='expense_type']").val("meal");
+        }
+        else
+        {
+            document.getElementById("for_meal").src = "../../static/label_images/meals.png";
+        }
+
+        if (accommodation.checked)
+        {
+            document.getElementById("for_accommodation").src = "../../static/label_images/accommodation_active.png";
+            $("input[name='expense_type']").val("accommodation");
+        }
+        else
+        {
+            document.getElementById("for_accommodation").src = "../../static/label_images/accommodation.png";
+        }
+
+        if (corporate.checked)
+        {
+            document.getElementById("for_corporate").src = "../../static/label_images/corporate_active.png";
+            $("input[name='expense_type']").val("corporate");
+        }
+        else
+        {
+            document.getElementById("for_corporate").src = "../../static/label_images/corporate.png";
+        }
+
+      }
   </script>
+
+
+
 {% endblock %}
