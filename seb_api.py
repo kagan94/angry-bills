@@ -34,7 +34,7 @@ class SebApi:
         return payment_info
 
     def create_payment(self, debtorAccount, amount, endToEndPoint, creditorAccount='',
-                             currency="EUR",creditor = "Test  user", debtor = "Debtor 1",
+                             currency="EUR", creditor = "Test  user", debtor="Debtor 1",
                              commentStructured="test refund", commentUnstructured = "test refund"):
 
         endpoint = self.API_URL + '/payments/sepa-credit-transfers/initiation/'

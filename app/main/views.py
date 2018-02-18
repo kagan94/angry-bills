@@ -135,6 +135,8 @@ def accept_expense(id):
     comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s'\
               % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference, expense.seb_counterPartyName)
 
+    print(expense.seb_counterPartyAccount, float(expense.amount),
+          expense.seb_endToEndId, expense.seb_transactionCurrency, comment, "DOTA")
     r = SebApi().create_payment(debtorAccount=expense.seb_counterPartyAccount,
                             amount=float(expense.amount),
                             creditorAccount='',
