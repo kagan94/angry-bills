@@ -42,7 +42,7 @@ def add_expense():
 
         if is_form_valid:
             expense.user_id = current_user.id
-            expense.amount = f['amount']
+            expense.amount = float(f['amount'])
             expense.expense_type_id = ExpenseType.findByTag(f["expense_type"])
             expense.comments = f['comments']
             expense.seb_payment_date = f['seb_payment_date']
@@ -52,13 +52,46 @@ def add_expense():
             expense.seb_unstructuredReference = f['seb_unstructuredReference']
             expense.seb_structuredReference = f['seb_structuredReference']
             expense.seb_counterPartyName = f['seb_counterPartyName']
+            # expense = Expense.query \
+            #     .filter_by(id=int(expense_id), is_rejected=False) \
+            #     .filter(Expense.user.has(company_id=current_user.id)) \
+            #     .first_or_404()
+
+            comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s' \
+                      % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference,
+                         expense.seb_counterPartyName)
+
+            # Request to make refund here...
+            seb_api = SebApi()
+            accounts = seb_api.get_accounts()
+            sender_iban = seb_api.find_iban(accounts, expense.amount)
+            if not sender_iban:
+                flash('Not enough money on any of SEB accounts', 'form-error')
+                return redirect(url_for('main.add_expense'))
+
+            resp = seb_api.create_payment(debtorAccount=sender_iban,
+                                          amount=expense.amount,
+                                          creditorAccount=expense.seb_counterPartyAccount,
+                                          endToEndPoint=expense.seb_endToEndId,
+                                          currency=expense.seb_transactionCurrency,
+                                          creditor='',
+                                          debtor='',
+                                          commentUnstructured=comment)
+            if not resp:
+                flash('SEB create payment transaction failed', 'form-error')
+                return redirect(url_for('main.add_expense'))
+            expense.is_paid = True
+            expense.is_approved = True
+
+            # Save expense
             db.session.add(expense)
             db.session.commit()
 
-            flash('Your expense was successfully added', 'success')
-            return redirect(url_for('main.add_expense'))
+            flash('Your expense was successfully refunded', 'success')
+            return redirect(url_for('main.all_expenses'))
         else:
             flash('Invalid file or form data', 'form-error')
+
     transactions = SebApi().get_payments(size=5)
     return render_template('main/expense/add.html', **locals())
 
@@ -111,42 +144,7 @@ def reject_expense(expense_id):
     return redirect(url_for('main.all_requests'))
 
 
-@main.route('/expense/<expense_id>/accept', methods=['POST'])
-@company_required
-def accept_expense(expense_id):
-    expense = Expense.query \
-        .filter_by(id=int(expense_id), is_rejected=False) \
-        .filter(Expense.user.has(company_id=current_user.id)) \
-        .first_or_404()
-
-    comment = 'Payment date: %s. Description: %s. Struct.ref.: %s. Counter party name: %s' \
-              % (expense.seb_payment_date, expense.seb_unstructuredReference, expense.seb_structuredReference,
-                 expense.seb_counterPartyName)
-
-    # Request to make refund here...
-    seb_api = SebApi()
-    accounts = seb_api.get_accounts()
-    sender_iban = seb_api.find_iban(accounts, expense.amount)
-    if not sender_iban:
-        flash('Not enough money on any of SEB accounts', 'form-error')
-        return redirect(url_for('main.all_requests'))
-
-    resp = seb_api.create_payment(debtorAccount=sender_iban,
-                                  amount=expense.amount,
-                                  creditorAccount=expense.seb_counterPartyAccount,
-                                  endToEndPoint=expense.seb_endToEndId,
-                                  currency=expense.seb_transactionCurrency,
-                                  creditor='',
-                                  debtor='',
-                                  commentUnstructured=comment)
-    if not resp:
-        flash('SEB create payment transaction failed', 'form-error')
-        return redirect(url_for('main.all_requests'))
-
-    expense.is_paid = True
-    expense.is_approved = True
-    db.session.add(expense)
-    db.session.commit()
-
-    flash('Your changes have been saved', 'success')
-    return redirect(url_for('main.all_requests'))
+# @main.route('/expense/<expense_id>/accept', methods=['POST'])
+# @company_required
+# def accept_expense(expense_id):
+#     pass

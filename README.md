@@ -1,5 +1,6 @@
 # AngryBills
 With an ability to view and share transaction logs of expenses made with the employer, which we tested based on SEB’s API, our app allows you in addition to instant sharing your expenses information to the employer, simultaneously trigger the refund transaction, which covers your expenses. It makes you happier due to receiving your personal earlier and decreasing the headache for accountants within you firm.  
+  
 Project was developed during _Garage48 Open Banking hackaton_.
   
 **Additional files:**
@@ -24,11 +25,11 @@ Project was developed during _Garage48 Open Banking hackaton_.
 **Password:** test123
 
 ## Team photo:
-<img src="documentation/images/team_photo_1.jpg" width="750"/>
+<img src="documentation/images/team_photo_1.jpg" width="700"/>
 
 ## Screen shoots
 ### Registration
-<img src="documentation/images/registration.png" width="500"/>
+<img src="documentation/images/registration.png" width="700"/>
   
 ### Account settings
 <img src="documentation/images/account_settings.png" width="700"/>
