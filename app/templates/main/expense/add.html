@@ -48,36 +48,20 @@
       <h2>Step #2. Label your expense</h2>
       <div class="inline fields">
         <div class="field">
-          <div class="ui radio checkbox">
-            <label>
-              <input type="radio" name="expense_type" value="transport" checked="checked" id="transport" onclick="changeLabels()">
-              <img src="../../static/label_images/transport_active.png" id="for_transport">
-            </label>
-          </div>
+          <input type="radio" name="expense_type" value="transport" checked="checked">
+          <img src="../../static/label_images/transport.png" class="expense-type selected">
         </div>
         <div class="field">
-          <div class="ui radio checkbox">
-            <label>
-              <input type="radio" name="expense_type" value="meal" id="meal" onclick="changeLabels()">
-              <img src="../../static/label_images/meals.png" id="for_meal">
-            </label>
-          </div>
+          <input type="radio" name="expense_type" value="meal">
+          <img src="../../static/label_images/meals.png" class="expense-type">
         </div>
         <div class="field">
-          <div class="ui radio checkbox">
-            <label>
-              <input type="radio" name="expense_type" value="accommodation" id="accommodation" onclick="changeLabels()">
-              <img src="../../static/label_images/accommodation.png" id="for_accommodation">
-            </label>
-          </div>
+          <input type="radio" name="expense_type" value="accommodation">
+          <img src="../../static/label_images/accommodation.png" class="expense-type">
         </div>
         <div class="field">
-          <div class="ui radio checkbox">
-            <label>
-              <input type="radio" name="expense_type" value="corporate" id="corporate" onclick="changeLabels()">
-              <img src="../../static/label_images/corporate.png" id="for_corporate">
-            </label>
-          </div>
+          <input type="radio" name="expense_type" value="corporate">
+          <img src="../../static/label_images/corporate.png" class="expense-type">
         </div>
       </div>
 
@@ -115,6 +99,22 @@
     </form>
   </div>
 
+  <style>
+    input[name="expense_type"] {
+      display: none !important;
+    }
+
+    img.expense-type {
+      padding: 10px;
+    }
+
+    img.expense-type.selected {
+      padding: 10px;
+      background: #00b5ad0f;
+      border: 1px solid #00000061;
+    }
+  </style>
+
   <script>
       function validateForm() {
           var a = document.forms["Form"]["expenseType"].value;
@@ -149,55 +149,12 @@
           $('input[name="seb_counterPartyName"]').val(counterPartyName);
       });
 
-      function changeLabels() {
-        var transport = document.getElementById('transport');
-        var meal = document.getElementById('meal');
-        var accommodation = document.getElementById('accommodation');
-        var corporate = document.getElementById('corporate');
+      $('img.expense-type').click(function (e) {
+          $('img.expense-type.selected').removeClass('selected');
 
-        if (transport.checked)
-        {
-            document.getElementById("for_transport").src = "../../static/label_images/transport_active.png";
-            $("input[name='expense_type']").val("transport");
-        }
-        else
-        {
-            document.getElementById("for_transport").src = "../../static/label_images/transport.png";
-        }
+          $(this).addClass('selected');
 
-        if (meal.checked)
-        {
-            document.getElementById("for_meal").src = "../../static/label_images/meals_active.png";
-            $("input[name='expense_type']").val("meal");
-        }
-        else
-        {
-            document.getElementById("for_meal").src = "../../static/label_images/meals.png";
-        }
-
-        if (accommodation.checked)
-        {
-            document.getElementById("for_accommodation").src = "../../static/label_images/accommodation_active.png";
-            $("input[name='expense_type']").val("accommodation");
-        }
-        else
-        {
-            document.getElementById("for_accommodation").src = "../../static/label_images/accommodation.png";
-        }
-
-        if (corporate.checked)
-        {
-            document.getElementById("for_corporate").src = "../../static/label_images/corporate_active.png";
-            $("input[name='expense_type']").val("corporate");
-        }
-        else
-        {
-            document.getElementById("for_corporate").src = "../../static/label_images/corporate.png";
-        }
-
-      }
+          $(this).siblings('input[name="expense_type"]').prop('checked', 'checked');
+      });
   </script>
-
-
-
 {% endblock %}

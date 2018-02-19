@@ -48,7 +48,6 @@
       </div>
     </form>
 
-    {# <form action="{{ url_for('main.all_requests') }}"></form>#}
     <table id="requests" class="ui celled selectable table">
       <thead>
       <tr class="center aligned">
@@ -93,7 +92,7 @@
           <td>{{ expense.user.full_name }}</td>
           <td class="center aligned">
             {% if not expense.is_rejected %}
-              <form action="{{ url_for('main.reject_expense', id=expense.id) }}" method="POST"
+              <form action="{{ url_for('main.reject_expense', expense_id=expense.id) }}" method="POST"
                     style="display: inline-block">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <button type="submit" class="ui button orange tiny">Reject</button>
@@ -101,7 +100,7 @@
             {% endif %}
 
             {% if not expense.is_approved %}
-              <form action="{{ url_for('main.accept_expense', id=expense.id) }}" method="POST"
+              <form action="{{ url_for('main.accept_expense', expense_id=expense.id) }}" method="POST"
                     style="display: inline-block">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <button type="submit" class="ui button green tiny">Accept</button>

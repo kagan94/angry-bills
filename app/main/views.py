@@ -1,21 +1,15 @@
-from flask import abort
-from flask import current_app
 from flask import flash
 from flask import redirect
 from flask import render_template
 from flask import request
-# from ..models import EditableHTML
-from flask import request
-import datetime
-
 from flask import url_for
-from flask_login import login_required, current_user
+from flask_login import current_user
 
 from app.decorators import user_required, company_required
 from app.utils import save_user_file
-from .forms import AddExpenseForm
 from seb_api import SebApi
 from . import main
+from .forms import AddExpenseForm
 from .. import db
 from ..models import Expense, ExpenseType, User, Role
 
@@ -27,8 +21,6 @@ def index():
 
 @main.route('/about')
 def about():
-    # editable_html_obj = EditableHTML.get_editable_html('about')
-    # return render_template('main/about.html', editable_html_obj=editable_html_obj)
     return render_template('main/about.html')
 
 
@@ -75,11 +67,6 @@ def add_expense():
 @user_required
 def all_expenses():
     expenses = Expense.query.filter(Expense.user_id == current_user.id).all()
-
-    form = None
-    # form = ConfirmForm()
-    # if request.method == 'POST':
-    #     pass
     return render_template('main/expense/all.html', **locals())
 
 
@@ -109,11 +96,11 @@ def all_requests():
     return render_template('main/request/all.html', **locals())
 
 
-@main.route('/expense/<id>/reject', methods=['POST'])
+@main.route('/expense/<expense_id>/reject', methods=['POST'])
 @company_required
-def reject_expense(id):
+def reject_expense(expense_id):
     expense = Expense.query \
-        .filter_by(id=int(id), is_rejected=False) \
+        .filter_by(id=int(expense_id), is_rejected=False) \
         .filter(Expense.user.has(company_id=current_user.id)) \
         .first_or_404()
     expense.is_rejected = True
@@ -124,11 +111,11 @@ def reject_expense(id):
     return redirect(url_for('main.all_requests'))
 
 
-@main.route('/expense/<id>/accept', methods=['POST'])
+@main.route('/expense/<expense_id>/accept', methods=['POST'])
 @company_required
-def accept_expense(id):
+def accept_expense(expense_id):
     expense = Expense.query \
-        .filter_by(id=int(id), is_rejected=False) \
+        .filter_by(id=int(expense_id), is_rejected=False) \
         .filter(Expense.user.has(company_id=current_user.id)) \
         .first_or_404()
 

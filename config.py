@@ -76,8 +76,6 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ASSETS_DEBUG = True
 
-    os.environ['DATABASE'] = 'postgresql'
-
     if os.environ.get('DATABASE') == 'postgresql':
         POSTGRES_URL = os.environ.get('POSTGRES_URL')
         POSTGRES_DB = os.environ.get('POSTGRES_DB')

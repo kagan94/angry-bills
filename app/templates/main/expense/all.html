@@ -4,9 +4,6 @@
 {% block content %}
   <div class="ui text container">
     <h1>Submitted requests</h1>
-
-
-    <form action="{{ url_for('main.all_requests') }}"></form>
     <table id="requests" class="ui celled selectable table">
       <thead>
       <tr class="center aligned">
@@ -54,28 +51,4 @@
       </tfoot>
     </table>
   </div>
-
-  <script>
-      function selectAll() {
-          var shouldCheckAll = $('#select-all-checkboxes').is(':checked');
-          $('#requests tbody td:first-child :checkbox').prop('checked', shouldCheckAll);
-      }
-
-      $('#requests tbody tr').on('click', function (e) {
-          var tr = $(this),
-              checkbox = tr.find('input[name="expenses"]');
-          checkbox.click();
-      });
-
-      $('#make-refund').on('click', function () {
-          var selectedRequests = $('#requests tbody td:first-child :checkbox').map(function (i, el) {
-              if ($(el).is(':checked')) {
-                  return $(el).val();
-              }
-          }).get();
-
-          // Paste selected requests IDs into hidden input
-          $('#selected-requests').val(selectedRequests);
-      });
-  </script>
 {% endblock %}
